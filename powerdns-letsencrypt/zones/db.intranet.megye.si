@@ -1,0 +1,10 @@
+$TTL	10
+@	IN	SOA	 ns-letsencrypt.megye.si. monitoring.megye.si. (
+				  0	; Serial: auto-updated
+				 1h	; Refresh
+				 1h	; Retry
+				 2h	; Expire
+				10)	; Negative Cache TTL
+;
+; name servers - NS records
+	IN	NS  ns-letsencrypt.megye.si.

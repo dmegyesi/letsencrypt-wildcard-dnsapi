@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: powerdns-letsencrypt
+  namespace: infra
+  labels:
+    app: powerdns-letsencrypt
+spec:
+  replicas: 1
+
+  # Here I specify who is part of this deployment: if any pod has this specific label (= tag), I will scale it together with the others:
+  # It's good for dependencies, for example application + database pod has to be scaled both
+  selector:
+    matchLabels:
+      app: powerdns-letsencrypt
+
+  # Then I define a template of the pod. Each time I scale the deployment to more units, I will create new pods based on this template.
+  template:
+    metadata:
+      # Let's specify here the label, so the deployment can find it
+      labels:
+        app: powerdns-letsencrypt
+
+    # Here is the actual pod specification, same as in the single pod example
+    spec:
+
+      # I need in each pod a volume + the actual container. They belong together.
+
+      containers:
+      - name: pdns
+        image: gcr.io/personal-201021/powerdns-letsencrypt:master
+        imagePullPolicy: Always # I want to make sure we wpull the image at each start
+
+        env:
+        - name: APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: powerdns-letsencrypt-apikey
+              key: apikey
+
+        readinessProbe: # we use here readinessProbe, instead of livenessProbe -> live != ready; live == nginx running; ready = Wordpress app reachable, database connection works, etc.
+          httpGet:
+            path: /
+            port: port-api
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          timeoutSeconds: 3
+
+        ports:
+          - containerPort: 8081
+            name: "port-api"
+
+          - containerPort: 53
+            protocol: TCP
+            name: "port-dns-tcp"
+
+          - containerPort: 53
+            protocol: UDP
+            name: "port-dns-udp"
+
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"

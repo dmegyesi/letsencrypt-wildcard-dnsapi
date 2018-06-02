@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: powerdns-letsencrypt-udp
+  namespace: infra
+  labels:
+    app: powerdns-letsencrypt
+spec:
+  # I want to assign a virtual service IP to load balance between the pods
+  type: LoadBalancer
+
+  # Here I use the same selector as in the deployment.
+  selector:
+    app: powerdns-letsencrypt
+
+  ports:
+  - protocol: UDP
+    name: port-dns-udp
+    port: 53
+    targetPort: 53

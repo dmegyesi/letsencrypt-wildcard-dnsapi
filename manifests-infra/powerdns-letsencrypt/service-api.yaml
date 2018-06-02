@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: powerdns-letsencrypt-api
+  namespace: infra
+  labels:
+    app: powerdns-letsencrypt
+spec:
+  # I want to assign a virtual service IP to load balance between the pods
+  type: ClusterIP
+
+  # Here I use the same selector as in the deployment.
+  selector:
+    app: powerdns-letsencrypt
+
+  ports:
+  - protocol: TCP
+    name: port-api
+    port: 8081
+    targetPort: 8081
