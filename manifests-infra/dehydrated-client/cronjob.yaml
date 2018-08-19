@@ -1,0 +1,56 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: letsencrypt-wildcard-renewal
+  namespace: infra
+  labels:
+    app: letsencrypt-wildcard
+spec:
+  # UTC schedule! in summer time it's +2 in localtime!
+  # Run it once a week, each Monday
+  schedule: "30 2 * * 1"
+  concurrencyPolicy: Replace
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: letsencrypt-wildcard
+          name: letsencrypt-wildcard-renewal
+        spec:
+
+          terminationGracePeriodSeconds: 30
+
+          restartPolicy: Never
+         
+          containers:
+          - name: dehydrated
+            image: gcr.io/personal-201021/dehydrated-client:master
+            imagePullPolicy: Always
+
+            env:
+            - name: PDNS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: powerdns-letsencrypt-apikey
+                  key: apikey
+
+            - name: STAGING
+              value: "false"
+
+            - name: DEBUG
+              value: "false"
+
+            - name: FORCE_RENEW
+              value: "false"
+
+
+            resources:
+              requests:
+                memory: "100Mi"
+                cpu: "200m"
+              limits:
+                 memory: "100Mi"
+                 cpu: "200m"

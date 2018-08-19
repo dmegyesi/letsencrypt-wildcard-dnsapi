@@ -1,0 +1,4 @@
+bindings:
+- members:
+  - serviceAccount:sa-dehydrated-git@personal-201021.iam.gserviceaccount.com
+  role: roles/source.writer

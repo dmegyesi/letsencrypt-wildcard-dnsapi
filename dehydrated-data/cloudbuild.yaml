@@ -1,0 +1,13 @@
+steps:
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - '--namespace=infra'
+  - 'create'
+  - 'secret'
+  - 'generic'
+  - 'tls-cert-intranet-wildcard'
+  - '--from-file=tls.crt=certs/intranet.megye.si/fullchain.pem'
+  - '--from-file=tls.key=certs/intranet.megye.si/privkey.pem'
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=europe-west3'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-1'
